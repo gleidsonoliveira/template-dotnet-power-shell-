@@ -6,7 +6,7 @@
   Faz todas as perguntas de uma vez (menu numerado) e aguarda resposta consolidada.
   Suporta: WebApi, MVC, Worker Service, AWS Lambda.
   ORM: EF Core, Dapper ou Nenhum.
-  Banco: SQL Server, PostgreSQL, SQLite.
+  Banco: SQL Server, PostgreSQL, SQLite, MySQL.
 
 .USAGE
   PowerShell (interativo):
@@ -33,7 +33,7 @@ param(
   [string]$WebKind,
   [ValidateSet('efcore','dapper','none')]
   [string]$OrmKind,
-  [ValidateSet('sqlserver','postgresql','sqlite')]
+  [ValidateSet('sqlserver','postgresql','sqlite','mysql')]
   [string]$DbKind,
   [string]$CreateTests,
   [string]$CreateDocker,
@@ -58,11 +58,11 @@ function New-CsFile([string]$BasePath, [string]$RelativePath, [string]$Content) 
 # MAPA DE VERSÕES POR TFM
 # ─────────────────────────────────────────────────────────────
 $PkgMap = @{
-  'net6.0'  = @{ EF='6.0.36';  Dapper='2.1.35'; Pomelo='6.0.3';  Automapper='12.0.1'; FluentVal='11.9.0'; Scrutor='4.2.2'; Serilog='6.0.0';  SerilogFile='5.0.0'; Swashbuckle='6.5.0'; NewtonsoftJson='13.0.3'; SqlClient='5.2.2'; Npgsql='6.0.29'; SqlitePkg='6.0.36'; MvcViewFeatures='2.2.0'; SignalR='6.0.36'; MsDiAbstractions='6.0.0'; CodeGenDesign='6.0.17'; AspIdentityEF='6.0.36'; EFDesign='6.0.36'; MsExtConfig='6.0.1'; MsExtConfigJson='6.0.0'; Moq='4.20.70'; Coverlet='6.0.0'; LambdaCore='2.2.0' }
-  'net7.0'  = @{ EF='7.0.20';  Dapper='2.1.35'; Pomelo='7.0.0';  Automapper='12.0.1'; FluentVal='11.9.0'; Scrutor='4.2.2'; Serilog='7.0.0';  SerilogFile='5.0.0'; Swashbuckle='6.5.0'; NewtonsoftJson='13.0.3'; SqlClient='5.2.2'; Npgsql='7.0.18'; SqlitePkg='7.0.20'; MvcViewFeatures='2.2.0'; SignalR='7.0.20'; MsDiAbstractions='7.0.0'; CodeGenDesign='7.0.12'; AspIdentityEF='7.0.20'; EFDesign='7.0.20'; MsExtConfig='7.0.0'; MsExtConfigJson='7.0.0'; Moq='4.20.70'; Coverlet='6.0.0'; LambdaCore='2.2.0' }
-  'net8.0'  = @{ EF='8.0.11';  Dapper='2.1.35'; Pomelo='8.0.2';  Automapper='13.0.1'; FluentVal='11.9.0'; Scrutor='6.1.0'; Serilog='8.0.4';  SerilogFile='5.0.0'; Swashbuckle='6.9.0'; NewtonsoftJson='13.0.3'; SqlClient='5.2.2'; Npgsql='8.0.5';  SqlitePkg='8.0.11'; MvcViewFeatures='2.2.0'; SignalR='8.0.11'; MsDiAbstractions='8.0.2'; CodeGenDesign='8.0.7';  AspIdentityEF='8.0.11'; EFDesign='8.0.11'; MsExtConfig='8.0.0'; MsExtConfigJson='8.0.0'; Moq='4.20.70'; Coverlet='6.0.0'; LambdaCore='2.5.0' }
-  'net9.0'  = @{ EF='9.0.4';   Dapper='2.1.35'; Pomelo='9.0.0';  Automapper='13.0.1'; FluentVal='11.9.2'; Scrutor='6.1.0'; Serilog='9.0.0';  SerilogFile='6.0.0'; Swashbuckle='7.2.0'; NewtonsoftJson='13.0.3'; SqlClient='6.0.1'; Npgsql='9.0.4';  SqlitePkg='9.0.4';  MvcViewFeatures='2.2.0'; SignalR='9.0.4';  MsDiAbstractions='9.0.4'; CodeGenDesign='9.0.0';  AspIdentityEF='9.0.4';  EFDesign='9.0.4';  MsExtConfig='9.0.0'; MsExtConfigJson='9.0.0'; Moq='4.20.72'; Coverlet='6.0.2'; LambdaCore='2.5.0' }
-  'net10.0' = @{ EF='10.0.0';  Dapper='2.2.0';  Pomelo='10.0.0'; Automapper='13.0.1'; FluentVal='11.10.0';Scrutor='6.1.0'; Serilog='9.0.0';  SerilogFile='6.0.0'; Swashbuckle='7.3.0'; NewtonsoftJson='13.0.3'; SqlClient='6.0.1'; Npgsql='10.0.0'; SqlitePkg='10.0.0'; MvcViewFeatures='2.2.0'; SignalR='10.0.0'; MsDiAbstractions='10.0.0';CodeGenDesign='10.0.0'; AspIdentityEF='10.0.0'; EFDesign='10.0.0'; MsExtConfig='10.0.0';MsExtConfigJson='10.0.0';Moq='4.20.72'; Coverlet='6.0.2'; LambdaCore='2.5.0' }
+  'net6.0'  = @{ EF='6.0.36';  Dapper='2.1.35'; Pomelo='6.0.3';  MySqlConnector='2.2.7';  Automapper='12.0.1'; FluentVal='11.9.0'; Scrutor='4.2.2'; Serilog='6.0.0';  SerilogFile='5.0.0'; Swashbuckle='6.5.0'; NewtonsoftJson='13.0.3'; SqlClient='5.2.2'; Npgsql='6.0.29'; SqlitePkg='6.0.36'; MvcViewFeatures='2.2.0'; SignalR='6.0.36'; MsDiAbstractions='6.0.0'; CodeGenDesign='6.0.17'; AspIdentityEF='6.0.36'; EFDesign='6.0.36'; MsExtConfig='6.0.1'; MsExtConfigJson='6.0.0'; Moq='4.20.70'; Coverlet='6.0.0'; LambdaCore='2.2.0' }
+  'net7.0'  = @{ EF='7.0.20';  Dapper='2.1.35'; Pomelo='7.0.0';  MySqlConnector='2.3.7';  Automapper='12.0.1'; FluentVal='11.9.0'; Scrutor='4.2.2'; Serilog='7.0.0';  SerilogFile='5.0.0'; Swashbuckle='6.5.0'; NewtonsoftJson='13.0.3'; SqlClient='5.2.2'; Npgsql='7.0.18'; SqlitePkg='7.0.20'; MvcViewFeatures='2.2.0'; SignalR='7.0.20'; MsDiAbstractions='7.0.0'; CodeGenDesign='7.0.12'; AspIdentityEF='7.0.20'; EFDesign='7.0.20'; MsExtConfig='7.0.0'; MsExtConfigJson='7.0.0'; Moq='4.20.70'; Coverlet='6.0.0'; LambdaCore='2.2.0' }
+  'net8.0'  = @{ EF='8.0.11';  Dapper='2.1.35'; Pomelo='8.0.2';  MySqlConnector='2.3.7';  Automapper='13.0.1'; FluentVal='11.9.0'; Scrutor='6.1.0'; Serilog='8.0.4';  SerilogFile='5.0.0'; Swashbuckle='6.9.0'; NewtonsoftJson='13.0.3'; SqlClient='5.2.2'; Npgsql='8.0.5';  SqlitePkg='8.0.11'; MvcViewFeatures='2.2.0'; SignalR='8.0.11'; MsDiAbstractions='8.0.2'; CodeGenDesign='8.0.7';  AspIdentityEF='8.0.11'; EFDesign='8.0.11'; MsExtConfig='8.0.0'; MsExtConfigJson='8.0.0'; Moq='4.20.70'; Coverlet='6.0.0'; LambdaCore='2.5.0' }
+  'net9.0'  = @{ EF='9.0.4';   Dapper='2.1.35'; Pomelo='9.0.0';  MySqlConnector='2.4.0';  Automapper='13.0.1'; FluentVal='11.9.2'; Scrutor='6.1.0'; Serilog='9.0.0';  SerilogFile='6.0.0'; Swashbuckle='7.2.0'; NewtonsoftJson='13.0.3'; SqlClient='6.0.1'; Npgsql='9.0.4';  SqlitePkg='9.0.4';  MvcViewFeatures='2.2.0'; SignalR='9.0.4';  MsDiAbstractions='9.0.4'; CodeGenDesign='9.0.0';  AspIdentityEF='9.0.4';  EFDesign='9.0.4';  MsExtConfig='9.0.0'; MsExtConfigJson='9.0.0'; Moq='4.20.72'; Coverlet='6.0.2'; LambdaCore='2.5.0' }
+  'net10.0' = @{ EF='10.0.0';  Dapper='2.2.0';  Pomelo='10.0.0'; MySqlConnector='2.4.0';  Automapper='13.0.1'; FluentVal='11.10.0';Scrutor='6.1.0'; Serilog='9.0.0';  SerilogFile='6.0.0'; Swashbuckle='7.3.0'; NewtonsoftJson='13.0.3'; SqlClient='6.0.1'; Npgsql='10.0.0'; SqlitePkg='10.0.0'; MvcViewFeatures='2.2.0'; SignalR='10.0.0'; MsDiAbstractions='10.0.0';CodeGenDesign='10.0.0'; AspIdentityEF='10.0.0'; EFDesign='10.0.0'; MsExtConfig='10.0.0';MsExtConfigJson='10.0.0';Moq='4.20.72'; Coverlet='6.0.2'; LambdaCore='2.5.0' }
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -110,6 +110,7 @@ if ($needsMenu) {
   Write-Host "       [sqlserver]   SQL Server"
   Write-Host "       [postgresql]  PostgreSQL"
   Write-Host "       [sqlite]      SQLite"
+  Write-Host "       [mysql]       MySQL"
   Write-Host ""
   Write-Host "  5. Gerar Dockerfile e .dockerignore? [y/N]" -ForegroundColor Yellow
   Write-Host ""
@@ -162,7 +163,7 @@ if ($needsMenu) {
 $validTfm  = @('net6.0','net7.0','net8.0','net9.0','net10.0')
 $validWeb  = @('webapi','mvc','worker','lambda-empty','lambda-sqs','lambda-sns','lambda-apigw')
 $validOrm  = @('efcore','dapper','none')
-$validDb   = @('sqlserver','postgresql','sqlite')
+$validDb   = @('sqlserver','postgresql','sqlite','mysql')
 
 if ($TargetFramework -notin $validTfm) {
   Write-Error "TFM inválido: '$TargetFramework'. Use: $($validTfm -join ', ')"; exit 1
@@ -319,6 +320,9 @@ if ($OrmKind -eq 'efcore') {
     'sqlite'     {
       Add-Pkg $projData 'Microsoft.EntityFrameworkCore.Sqlite'    $pkg.SqlitePkg
     }
+    'mysql'      {
+      Add-Pkg $projData 'Pomelo.EntityFrameworkCore.MySql'        $pkg.Pomelo
+    }
   }
 } elseif ($OrmKind -eq 'dapper') {
   Add-Pkg $projData 'Dapper' $pkg.Dapper
@@ -326,6 +330,7 @@ if ($OrmKind -eq 'efcore') {
     'sqlserver'  { Add-Pkg $projData 'Microsoft.Data.SqlClient' $pkg.SqlClient }
     'postgresql' { Add-Pkg $projData 'Npgsql'                   $pkg.Npgsql    }
     'sqlite'     { Add-Pkg $projData 'Microsoft.Data.Sqlite'    $pkg.SqlitePkg }
+    'mysql'      { Add-Pkg $projData 'MySqlConnector'           $pkg.MySqlConnector }
   }
 }
 # ORM = none: sem pacotes de acesso a dados
@@ -345,12 +350,14 @@ if ($OrmKind -eq 'efcore') {
     'sqlserver'  { Add-Pkg $projCrossCutting 'Microsoft.EntityFrameworkCore.SqlServer' $pkg.EF      }
     'postgresql' { Add-Pkg $projCrossCutting 'Npgsql.EntityFrameworkCore.PostgreSQL'  $pkg.Npgsql   }
     'sqlite'     { Add-Pkg $projCrossCutting 'Microsoft.EntityFrameworkCore.Sqlite'   $pkg.SqlitePkg}
+    'mysql'      { Add-Pkg $projCrossCutting 'Pomelo.EntityFrameworkCore.MySql'       $pkg.Pomelo   }
   }
 } elseif ($OrmKind -eq 'dapper') {
   switch ($DbKind) {
     'sqlserver'  { Add-Pkg $projCrossCutting 'Microsoft.Data.SqlClient' $pkg.SqlClient }
     'postgresql' { Add-Pkg $projCrossCutting 'Npgsql'                   $pkg.Npgsql    }
     'sqlite'     { Add-Pkg $projCrossCutting 'Microsoft.Data.Sqlite'    $pkg.SqlitePkg }
+    'mysql'      { Add-Pkg $projCrossCutting 'MySqlConnector'           $pkg.MySqlConnector }
   }
 }
 
@@ -451,7 +458,7 @@ namespace $nsRoot.DependencyInjection.DbConfig;
 
 public static class DbDependencyExtensions
 {
-    public static IServiceCollection AddSqlServerDependency(
+    public static IServiceCollection AddDataBaseDependency(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -494,7 +501,7 @@ public sealed class SqlConnectionFactory : IDbConnectionFactory
 
 public static class DbDependencyExtensions
 {
-    public static IServiceCollection AddSqlServerDependency(
+    public static IServiceCollection AddDataBaseDependency(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -733,7 +740,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddSqlServerDependency(builder.Configuration);
+builder.Services.AddDataBaseDependency(builder.Configuration);
 builder.Services.AddSqlRepositoryDependency();
 builder.Services.AddServiceDependency();
 builder.Services.AddMapperConfiguration();
@@ -785,7 +792,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Services.AddControllers()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-builder.Services.AddSqlServerDependency(builder.Configuration);
+builder.Services.AddDataBaseDependency(builder.Configuration);
 builder.Services.AddSqlRepositoryDependency();
 builder.Services.AddServiceDependency();
 builder.Services.AddMapperConfiguration();
@@ -826,7 +833,7 @@ Log.Logger = new LoggerConfiguration()
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
     {
-        services.AddSqlServerDependency(ctx.Configuration);
+        services.AddDataBaseDependency(ctx.Configuration);
         services.AddSqlRepositoryDependency();
         services.AddServiceDependency();
         // TODO: services.AddHostedService<SeuWorker>();
